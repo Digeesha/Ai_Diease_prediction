@@ -3,7 +3,7 @@ from datetime import datetime
 
 def get_real_time_disease_data():
     disease_api = "https://disease.sh/v3/covid-19/countries"
-    weather_api = "https://api.openweathermap.org/data/2.5/weather?q={city}&appid=93785eaa7f9e442d868cc80ac924648b"
+    weather_api = "https://api.openweathermap.org/data/2.5/weather?q={city}&appid=secret_key"
 
     response = requests.get(disease_api)
 
