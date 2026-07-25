@@ -1,0 +1,322 @@
+.app-shell {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  background:
+    linear-gradient(160deg, rgba(236, 248, 255, 0.94), rgba(238, 255, 247, 0.93)),
+    url("/season-health-theme.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #172033;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.app-shell::before {
+  width: 420px;
+  height: 420px;
+  left: -140px;
+  bottom: -140px;
+  background: radial-gradient(circle, rgba(19, 188, 232, 0.2), transparent 68%);
+}
+
+.app-shell::after {
+  width: 360px;
+  height: 360px;
+  right: -120px;
+  top: -100px;
+  background: radial-gradient(circle, rgba(71, 124, 255, 0.18), transparent 70%);
+}
+
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.hero {
+  margin-bottom: 24px;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(164, 223, 255, 0.75);
+  background: linear-gradient(115deg, rgba(236, 247, 255, 0.88), rgba(229, 255, 245, 0.84));
+  box-shadow: 0 18px 34px rgba(16, 84, 144, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.hero-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: #1e5e94;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 8px 0 10px;
+  font-size: 2.2rem;
+  line-height: 1.2;
+  color: #102743;
+}
+
+.hero-subtitle {
+  margin: 0;
+  color: #284766;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+.predictor-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 255, 254, 0.95) 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(186, 224, 250, 0.86);
+  box-shadow: 0 18px 36px rgba(28, 80, 145, 0.18);
+  padding: 22px;
+  backdrop-filter: blur(7px);
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.dashboard-main {
+  min-width: 0;
+}
+
+.health-side-panel {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid #bbe3fb;
+  background: linear-gradient(165deg, #e4f6ff 0%, #e7fff6 58%, #edf0ff 100%);
+  box-shadow: 0 16px 32px rgba(20, 89, 148, 0.2);
+  padding: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(7px);
+}
+
+.health-side-panel h3 {
+  margin: 0 0 8px;
+  color: #1d4f87;
+}
+
+.health-side-panel p {
+  margin: 0 0 12px;
+  color: #3f5e7a;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.poster-frame {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  min-height: 280px;
+  border: 1px solid #bde0f8;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(120, 198, 255, 0.42), transparent 34%),
+    radial-gradient(circle at 75% 38%, rgba(75, 230, 193, 0.36), transparent 45%),
+    linear-gradient(155deg, #2998ff 0%, #19bfd0 52%, #4268ff 100%);
+}
+
+.poster-frame-secondary {
+  margin-top: 12px;
+}
+
+.poster-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(32, 123, 255, 0.14), rgba(31, 200, 154, 0.1));
+  pointer-events: none;
+}
+
+.poster-image {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  display: block;
+}
+
+.predictor-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.predictor-title-row h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #102743;
+}
+
+.smart-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d7f1ff, #d8ffe9);
+  color: #1f6b89;
+  border: 1px solid #bde8ff;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.controls-grid label {
+  font-size: 13px;
+  color: #2f4f6f;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.controls-grid select,
+.controls-grid input {
+  width: 100%;
+  border: 1px solid #c6dcf4;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #fefeff;
+  color: #1f2a44;
+}
+
+.controls-grid input[readonly] {
+  background: #f5f8ff;
+}
+
+.predict-button {
+  border: none;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1f7df0 0%, #3358db 45%, #36b889 100%);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.predict-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(35, 95, 226, 0.44);
+}
+
+.result-card {
+  margin-top: 18px;
+  border-radius: 14px;
+  border: 1px solid #d7ebff;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.result-card h3 {
+  margin: 0 0 12px;
+}
+
+.weather-card {
+  background: linear-gradient(125deg, #eaf7ff, #f1fffa);
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.weather-grid p,
+.prediction-item p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.weather-grid span,
+.prediction-item span {
+  font-weight: 700;
+  color: #30416c;
+}
+
+.result-subtitle {
+  margin: 0 0 14px;
+  color: #52617e;
+}
+
+.prediction-list {
+  display: grid;
+  gap: 10px;
+}
+
+.prediction-item {
+  background: linear-gradient(130deg, #fbfdff, #f6fffb);
+  border: 1px solid #ddeef7;
+  border-radius: 12px;
+  padding: 12px;
+  border-left: 5px solid #3f9cff;
+}
+
+.prediction-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.score-pill {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: linear-gradient(120deg, #e2f0ff, #e0fff1);
+  color: #2566a0;
+  padding: 4px 10px;
+}
+
+@media (max-width: 800px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .controls-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-container {
+    padding: 20px 14px 32px;
+  }
+
+  .hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .controls-grid,
+  .weather-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .predictor-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

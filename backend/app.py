@@ -6,21 +6,80 @@ import joblib
 from datetime import datetime
 import math
 import json
+from pathlib import Path
 
 app = Flask(__name__)
 CORS(app)
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / "data"
+MODEL_DIR = BASE_DIR / "model"
+
+DATASET_PATH = DATA_DIR / "Expanded_Dataset_With_Ranges.csv"
+DISEASE_COLUMNS_PATH = MODEL_DIR / "disease_columns.json"
+MODEL_PATH = MODEL_DIR / "disease_predictor_rf_model.save"
+SCALER_PATH = MODEL_DIR / "scaler_range_model.save"
+CITY_ENCODER_PATH = MODEL_DIR / "city_encoder_range_model.save"
+
+required_files = [
+    DATASET_PATH,
+    DISEASE_COLUMNS_PATH,
+    MODEL_PATH,
+    SCALER_PATH,
+    CITY_ENCODER_PATH,
+]
+missing_files = [str(path) for path in required_files if not path.exists()]
+
+if missing_files:
+    raise FileNotFoundError(
+        "Missing required project files. Train the model and ensure these files exist: "
+        + ", ".join(missing_files)
+    )
+
 # Load data
-df = pd.read_csv('D:/Ai_Diease_prediction/data/Expanded_Dataset_With_Ranges.csv')
+df = pd.read_csv(DATASET_PATH)
 
 # Load disease names
-with open('D:/Ai_Diease_prediction/model/disease_columns.json', 'r') as f:
+with open(DISEASE_COLUMNS_PATH, 'r') as f:
     diseases = json.load(f)
 
 # Load trained model & preprocessing tools
-model = joblib.load('D:/Ai_Diease_prediction/model/disease_predictor_rf_model.save')
-scaler = joblib.load('D:/Ai_Diease_prediction/model/scaler_range_model.save')
-city_encoder = joblib.load('D:/Ai_Diease_prediction/model/city_encoder_range_model.save')
+model = joblib.load(MODEL_PATH)
+scaler = joblib.load(SCALER_PATH)
+city_encoder = joblib.load(CITY_ENCODER_PATH)
+
+@app.route('/cities', methods=['GET'])
+def cities():
+    try:
+        month_arg = request.args.get('month')
+        filtered_df = df
+
+        if month_arg is not None:
+            month = int(month_arg)
+            if month < 1 or month > 12:
+                return jsonify({"error": "month must be between 1 and 12"}), 400
+            filtered_df = df[df['Month'] == month]
+
+        if filtered_df.empty:
+            return jsonify({"cities": []})
+
+        # Keep one country per city for current UI mapping.
+        city_records = (
+            filtered_df[['City', 'Country']]
+            .dropna()
+            .drop_duplicates(subset=['Country', 'City'])
+            .sort_values(by=['Country', 'City'])
+        )
+        payload = [
+            {"city": row.City, "country": row.Country}
+            for row in city_records.itertuples(index=False)
+        ]
+        return jsonify({"cities": payload})
+    except ValueError:
+        return jsonify({"error": "month must be an integer"}), 400
+    except Exception as e:
+        print("Exception in /cities:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
 def predict():

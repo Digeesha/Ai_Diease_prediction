@@ -3,9 +3,11 @@ import os
 
 # Function to fetch weather data from OpenWeather API
 def get_weather(city, country):
-    api_key = "93785eaa7f9e442d868cc80ac924648b"  # Replace with your actual API key
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    if not api_key:
+        return {"error": "Missing OPENWEATHER_API_KEY environment variable"}
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city},{country}&appid={api_key}"
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
 
     if response.status_code == 200:
         return response.json()

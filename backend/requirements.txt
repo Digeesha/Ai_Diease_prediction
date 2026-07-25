@@ -1,4 +1,10 @@
 flask
-pandas
-scikit-learn
+flask-cors
+# Pandas wheels must match NumPy ABI (NumPy 2 needs pandas >= 2.2).
+pandas>=2.2
+# joblib pickles (e.g. scaler) from NumPy 2 expect numpy._core; NumPy 1.x cannot load them.
+numpy>=2.0,<3
+# Model artifacts (disease_predictor_rf_model.save) require sklearn >= 1.7 (tree pickle format).
+scikit-learn>=1.7.2,<2
 requests
+python-dotenv

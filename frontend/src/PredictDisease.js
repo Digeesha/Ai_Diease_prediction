@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-function PredictDisease() {
-  // 👇 Predefined city-country pairs
-  const cityCountryMap = {
-    'Mumbai': 'IN',
-    'London': 'UK',
-    'New York': 'US'
-  };
-
-  const [city, setCity] = useState('Mumbai');
-  const [country, setCountry] = useState(cityCountryMap['Mumbai']);
+function PredictDisease({ onPredictTriggered }) {
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [countryCityMap, setCountryCityMap] = useState({});
+  const [country, setCountry] = useState('');
+  const [cityOptions, setCityOptions] = useState([]);
+  const [city, setCity] = useState('');
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [prediction, setPrediction] = useState(null);
@@ -20,7 +16,72 @@ function PredictDisease() {
   const currentYear = new Date().getFullYear();
   const availableYears = [currentYear, currentYear + 1];
 
+  React.useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:5000/cities', {
+          params: { month },
+        });
+        const records = res.data?.cities || [];
+        const map = records.reduce((acc, item) => {
+          if (!acc[item.country]) {
+            acc[item.country] = [];
+          }
+          if (!acc[item.country].includes(item.city)) {
+            acc[item.country].push(item.city);
+          }
+          return acc;
+        }, {});
+        const countries = Object.keys(map).sort((a, b) => a.localeCompare(b));
+        countries.forEach((countryName) => {
+          map[countryName].sort((a, b) => a.localeCompare(b));
+        });
+
+        setCountryCityMap(map);
+        setCountryOptions(countries);
+      } catch (error) {
+        console.error('Error loading cities:', error);
+        setCountryOptions([]);
+        setCountryCityMap({});
+        setCountry('');
+        setCityOptions([]);
+        setCity('');
+      }
+    };
+
+    fetchCities();
+    // Re-fetch cities when month changes so dropdown shows available data.
+  }, [month]);
+
+  React.useEffect(() => {
+    if (countryOptions.length === 0) {
+      setCountry('');
+      setCityOptions([]);
+      setCity('');
+      return;
+    }
+
+    const nextCountry = countryCityMap[country] ? country : countryOptions[0];
+    if (nextCountry !== country) {
+      setCountry(nextCountry);
+      return;
+    }
+
+    const nextCities = countryCityMap[country] || [];
+    setCityOptions(nextCities);
+    setCity((prevCity) => (nextCities.includes(prevCity) ? prevCity : (nextCities[0] || '')));
+  }, [country, countryOptions, countryCityMap]);
+
   const fetchWeatherAndPredict = async () => {
+    if (onPredictTriggered) {
+      onPredictTriggered();
+    }
+
+    if (!city || !country) {
+      alert('No city data available for this month.');
+      return;
+    }
+
     try {
       setLoading(true);
       setPrediction(null);
@@ -37,9 +98,7 @@ function PredictDisease() {
       setPrediction(res.data.predictions);
     } catch (error) {
       console.error('Error:', error);
-
-      // ✅ Improved error handling
-      const message = error.response?.data?.error || '❌ Something went wrong. Try again.';
+      const message = error.response?.data?.error || 'Something went wrong. Try again.';
       alert(message);
     } finally {
       setLoading(false);
@@ -52,69 +111,116 @@ function PredictDisease() {
   });
 
   const handleCityChange = (e) => {
-    const selectedCity = e.target.value;
-    setCity(selectedCity);
-    setCountry(cityCountryMap[selectedCity]);
+    setCity(e.target.value);
+  };
+
+  const handleCountryChange = (e) => {
+    setCountry(e.target.value);
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>🌡️ AI Disease Predictor (with Smart Weather Mode)</h2>
+    <section className="predictor-card">
+      <div className="predictor-title-row">
+        <h2>Disease Predictor</h2>
+        <span className="smart-badge">Smart Weather Mode</span>
+      </div>
 
-      <select value={city} onChange={handleCityChange} style={{ marginRight: '1rem' }}>
-        {Object.keys(cityCountryMap).map((cityName) => (
-          <option key={cityName} value={cityName}>{cityName}</option>
-        ))}
-      </select>
+      <div className="controls-grid">
+        <label>
+          Country
+          <select value={country} onChange={handleCountryChange} disabled={countryOptions.length === 0}>
+            {countryOptions.map((countryName) => (
+              <option key={countryName} value={countryName}>
+                {countryName}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <input
-        type="text"
-        placeholder="Country"
-        value={country}
-        readOnly
-        style={{ marginRight: '1rem', backgroundColor: '#f0f0f0' }}
-      />
+        <label>
+          City
+          <select value={city} onChange={handleCityChange} disabled={cityOptions.length === 0}>
+            {cityOptions.map((cityName) => (
+              <option key={cityName} value={cityName}>
+                {cityName}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <select value={month} onChange={(e) => setMonth(Number(e.target.value))} style={{ marginRight: '1rem' }}>
-        {monthOptions.map(({ value, name }) => (
-          <option key={value} value={value}>{name}</option>
-        ))}
-      </select>
+        <label>
+          Month
+          <select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+            {monthOptions.map(({ value, name }) => (
+              <option key={value} value={value}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
-        {availableYears.map((y) => (
-          <option key={y} value={y}>{y}</option>
-        ))}
-      </select>
+        <label>
+          Year
+          <select value={year} onChange={(e) => setYear(parseInt(e.target.value, 10))}>
+            {availableYears.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <button onClick={fetchWeatherAndPredict} style={{ marginTop: '1rem', marginLeft: '1rem' }}>
-        {loading ? 'Loading...' : 'Predict'}
-      </button>
+        <button className="predict-button" onClick={fetchWeatherAndPredict}>
+          {loading ? 'Predicting...' : 'Predict Diseases'}
+        </button>
+      </div>
+      {cityOptions.length === 0 && (
+        <p className="result-subtitle">No city data available for the selected month.</p>
+      )}
 
       {weather && (
-        <div style={{ marginTop: '2rem', background: '#f1f8ff', padding: '1rem', borderRadius: '8px' }}>
-          <h3>🌍 Weather for Prediction — {monthOptions[month - 1].name}</h3>
-          <p><b>Temperature:</b> {weather.temp_min}–{weather.temp_max} °C</p>
-          <p><b>Humidity:</b> {weather.humidity_min}–{weather.humidity_max} %</p>
-        </div>
+        <section className="result-card weather-card">
+          <h3>Weather Snapshot ({monthOptions[month - 1].name})</h3>
+          <div className="weather-grid">
+            <p>
+              <span>Temperature</span>
+              {` ${weather.temp_min} to ${weather.temp_max} \u00b0C`}
+            </p>
+            <p>
+              <span>Humidity</span>
+              {` ${weather.humidity_min} to ${weather.humidity_max} %`}
+            </p>
+          </div>
+        </section>
       )}
 
       {prediction && (
-        <div style={{ marginTop: '2rem' }}>
-          <h3>🧠 Predicted Diseases for {monthOptions[month - 1].name} {year}</h3>
-          <p>📊 Based on weather in {city}, {country.toUpperCase()}</p>
-          <ul>
+        <section className="result-card prediction-card">
+          <h3>
+            Top Predictions for {monthOptions[month - 1].name} {year}
+          </h3>
+          <p className="result-subtitle">
+            Based on weather signals for {city}, {country.toUpperCase()}
+          </p>
+          <div className="prediction-list">
             {prediction.map((disease, index) => (
-              <li key={index} style={{ marginBottom: '1rem' }}>
-                <strong>{disease.name}</strong><br />
-                <b>Symptoms:</b> {disease.symptoms}<br />
-                <b>Advice:</b> {disease.advice}
-              </li>
+              <article key={index} className="prediction-item">
+                <div className="prediction-head">
+                  <strong>{disease.name}</strong>
+                  <span className="score-pill">Score: {disease.score}</span>
+                </div>
+                <p>
+                  <span>Symptoms:</span> {disease.symptoms}
+                </p>
+                <p>
+                  <span>Advice:</span> {disease.advice}
+                </p>
+              </article>
             ))}
-          </ul>
-        </div>
+          </div>
+        </section>
       )}
-    </div>
+    </section>
   );
 }
 

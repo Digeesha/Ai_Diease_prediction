@@ -59,12 +59,12 @@ Y_pred = model.predict(X_test)
 mae = mean_absolute_error(Y_test, Y_pred)
 r2 = r2_score(Y_test, Y_pred)
 
-print("📊 Model Evaluation:")
-print("🔹 Mean Absolute Error (MAE):", round(mae, 2))
-print("🔹 R² Score:", round(r2, 4))
+print("Model Evaluation:")
+print("- Mean Absolute Error (MAE):", round(mae, 2))
+print("- R2 Score:", round(r2, 4))
 
 # Save trained model
 joblib.dump(model, 'D:/Ai_Diease_prediction/model/disease_predictor_rf_model.save')
 
-print("✅ RandomForestRegressor model training complete and saved.")
-print("🦠 Diseases learned:", disease_cols)
+print("RandomForestRegressor model training complete and saved.")
+print("Diseases learned:", disease_cols)
